@@ -59,9 +59,10 @@ namespace ProcessViewer
         private void ListViewHeaderClick(object sender, RoutedEventArgs e)
         {
             if (!(e.OriginalSource is GridViewColumnHeader header)) return;
-            var binding = (Binding)header.Column.DisplayMemberBinding;
-            switch (binding.Path.Path)
+            var binding = (Binding)header.Column?.DisplayMemberBinding;
+            switch (binding?.Path?.Path)
             {
+                case null: return;
                 case nameof(Process.Pid):
                 case nameof(Process.Name):
                     _source.GroupDescriptions.Clear();
