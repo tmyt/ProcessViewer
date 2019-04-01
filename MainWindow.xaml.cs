@@ -36,7 +36,7 @@ namespace ProcessViewer
             _source.Source = Processes;
             _source.SortDescriptions.Add(new SortDescription
             {
-                PropertyName = nameof(Process.Name)
+                PropertyName = nameof(Process.Pid)
             });
         }
 
