@@ -8,7 +8,6 @@
 
     <Window.Resources>
         <CollectionViewSource x:Key="Source" />
-
         <Style x:Key="GroupingStyle" TargetType="{x:Type GroupItem}">
             <Setter Property="Margin" Value="0,0,0,5"/>
             <Setter Property="Template">
@@ -48,12 +47,20 @@
                   VirtualizingPanel.ScrollUnit="Pixel"
                   ScrollViewer.CanContentScroll="True"
                   GridViewColumnHeader.Click="ListViewHeaderClick">
+            <ListView.Resources>
+                <Style x:Key="{x:Static GridView.GridViewItemContainerStyleKey}" TargetType="{x:Type ListViewItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                </Style>
+            </ListView.Resources>
             <ListView.GroupStyle>
                 <GroupStyle ContainerStyle="{StaticResource GroupingStyle}" />
             </ListView.GroupStyle>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="PID" DisplayMemberBinding="{Binding Pid}" />
+                    <GridViewColumn Header="PID" DisplayMemberBinding="{Binding Pid}"/>
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
                     <GridViewColumn Header="MachineType" DisplayMemberBinding="{Binding MachineType}"/>
                     <GridViewColumn Header="IsWow64" DisplayMemberBinding="{Binding IsWow64}"/>
