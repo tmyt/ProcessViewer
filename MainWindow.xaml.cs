@@ -42,6 +42,7 @@ namespace ProcessViewer
 
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
+            Processes.Clear();
             foreach (var ppe in EnumProcesses())
             {
                 QueryMachineType(ppe.th32ProcessID, out var processMachine, out var nativeMachine);
