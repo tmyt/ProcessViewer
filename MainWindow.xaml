@@ -43,6 +43,10 @@
             <Button Content="Refresh" Click="RefreshClick"/>
         </ToolBar>
         <ListView Grid.Row="1" ItemsSource="{Binding Source={StaticResource Source}}"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  VirtualizingPanel.ScrollUnit="Pixel"
+                  ScrollViewer.CanContentScroll="True"
                   GridViewColumnHeader.Click="ListViewHeaderClick">
             <ListView.GroupStyle>
                 <GroupStyle ContainerStyle="{StaticResource GroupingStyle}" />
