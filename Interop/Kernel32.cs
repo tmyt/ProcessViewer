@@ -19,7 +19,7 @@ namespace ProcessViewer.Interop
         [DllImport("kernel32.dll")]
         public static extern bool Process32Next(IntPtr hSnapshot, ref PROCESSENTRY32 lppe);
         [DllImport("kernel32.dll")]
-        public static extern bool IsWow64Process2(IntPtr hProcess, ref ushort pProcessMachine, ref ushort pNativeMachine);
+        public static extern bool IsWow64Process2(IntPtr hProcess, out ImageFileMachine pProcessMachine, out ImageFileMachine pNativeMachine);
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenProcess(ProcessAccessFlags processAccess, bool bInheritHandle, int processId);
     }
@@ -70,7 +70,7 @@ namespace ProcessViewer.Interop
         Synchronize = 0x00100000
     }
 
-    public enum ImageFileMachine
+    public enum ImageFileMachine : ushort
     {
         Unknown = 0, // Unknown
         Host = 0x0001, //Interacts with the host and not a WOW64 guest
