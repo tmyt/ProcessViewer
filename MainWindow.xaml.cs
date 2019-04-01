@@ -50,7 +50,7 @@ namespace ProcessViewer
                 {
                     Pid = ppe.th32ProcessID,
                     Name = Path.GetFileName(ppe.szExeFile),
-                    MachineType = (isWow64 ? nativeMachine : processMachine).Format(),
+                    MachineType = (isWow64 ? processMachine : nativeMachine).Format(),
                     IsWow64 = isWow64,
                 });
             }
@@ -102,7 +102,7 @@ namespace ProcessViewer
             {
                 Kernel32.IsWow64Process2(process, out processMachine, out nativeMachine);
                 // The value will be IMAGE_FILE_MACHINE_UNKNOWN if the target process is not a WOW64 process
-                return processMachine == ImageFileMachine.Unknown;
+                return processMachine != ImageFileMachine.Unknown;
             }
             finally
             {
