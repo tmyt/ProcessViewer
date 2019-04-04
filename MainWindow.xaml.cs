@@ -16,7 +16,7 @@ namespace ProcessViewer
     /// </summary>
     public partial class MainWindow : Window
     {
-        public class Process
+        public class ProcessInfo
         {
             public uint Pid { get; set; }
             public string Name { get; set; }
@@ -24,8 +24,8 @@ namespace ProcessViewer
             public bool IsWow64 { get; set; }
         }
 
-        public ObservableCollection<Process> Processes { get; }
-            = new ObservableCollection<Process>();
+        public ObservableCollection<ProcessInfo> Processes { get; }
+            = new ObservableCollection<ProcessInfo>();
 
         private CollectionViewSource _source;
 
@@ -36,7 +36,7 @@ namespace ProcessViewer
             _source.Source = Processes;
             _source.SortDescriptions.Add(new SortDescription
             {
-                PropertyName = nameof(Process.Pid)
+                PropertyName = nameof(ProcessInfo.Pid)
             });
         }
 
@@ -45,12 +45,12 @@ namespace ProcessViewer
             Processes.Clear();
             foreach (var ppe in EnumProcesses())
             {
-                var isWow64 = QueryMachineType(ppe.th32ProcessID, out var processMachine, out var nativeMachine);
-                Processes.Add(new Process
+                var (isWow64, machine) = QueryMachineType(ppe.th32ProcessID);
+                Processes.Add(new ProcessInfo
                 {
                     Pid = ppe.th32ProcessID,
                     Name = Path.GetFileName(ppe.szExeFile),
-                    MachineType = (isWow64 ? processMachine : nativeMachine).Format(),
+                    MachineType = machine.Format(),
                     IsWow64 = isWow64,
                 });
             }
@@ -59,24 +59,23 @@ namespace ProcessViewer
         private void ListViewHeaderClick(object sender, RoutedEventArgs e)
         {
             if (!(e.OriginalSource is GridViewColumnHeader header)) return;
-            var binding = (Binding)header.Column?.DisplayMemberBinding;
-            switch (binding?.Path?.Path)
+            var path = ((Binding)header.Column?.DisplayMemberBinding)?.Path?.Path;
+            if (path == null) return;
+            _source.GroupDescriptions.Clear();
+            switch (path)
             {
-                case null: return;
-                case nameof(Process.Pid):
-                case nameof(Process.Name):
-                    _source.GroupDescriptions.Clear();
+                case nameof(ProcessInfo.Pid):
+                case nameof(ProcessInfo.Name):
                     _source.SortDescriptions.Clear();
                     _source.SortDescriptions.Add(new SortDescription()
                     {
-                        PropertyName = binding.Path.Path
+                        PropertyName = path
                     });
                     break;
                 default:
-                    _source.GroupDescriptions.Clear();
                     _source.GroupDescriptions.Add(new PropertyGroupDescription()
                     {
-                        PropertyName = binding.Path.Path
+                        PropertyName = path
                     });
                     break;
             }
@@ -96,18 +95,14 @@ namespace ProcessViewer
             Kernel32.CloseHandle(snapshot);
         }
 
-        private bool QueryMachineType(uint processId, out ImageFileMachine processMachine, out ImageFileMachine nativeMachine)
+        private (bool isWow64, ImageFileMachine machine) QueryMachineType(uint processId)
         {
-            var process = Kernel32.OpenProcess(ProcessAccessFlags.QueryLimitedInformation, false, (int)processId);
-            try
+            using(var process = new Interop.Process((int)processId, ProcessAccessFlags.QueryLimitedInformation))
             {
-                Kernel32.IsWow64Process2(process, out processMachine, out nativeMachine);
-                // The value will be IMAGE_FILE_MACHINE_UNKNOWN if the target process is not a WOW64 process
-                return processMachine != ImageFileMachine.Unknown;
-            }
-            finally
-            {
-                Kernel32.CloseHandle(process);
+                Kernel32.IsWow64Process2(process.Handle, out var processMachine, out var nativeMachine);
+                // `processMachine` will be IMAGE_FILE_MACHINE_UNKNOWN if the target process is not a WOW64 process
+                var isWow64 = processMachine != ImageFileMachine.Unknown;
+                return (isWow64, isWow64 ? processMachine : nativeMachine);
             }
         }
     }

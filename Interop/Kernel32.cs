@@ -147,4 +147,24 @@ namespace ProcessViewer.Interop
             }
         }
     }
+
+    public class Process : IDisposable
+    {
+        public IntPtr Handle { get; private set; }
+
+        private Process(int processId, ProcessAccessFlags flags)
+        {
+            Handle = Kernel32.OpenProcess(flags, false, processId);
+        }
+
+        public void Dispose()
+        {
+            Kernel32.CloseHandle(Handle);
+        }
+
+        public static Process Open(int processId, ProcessAccessFlags flags)
+        {
+            return new Process(processId, flags);
+        }
+    }
 }
