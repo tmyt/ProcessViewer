@@ -45,6 +45,7 @@
                   VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                   VirtualizingPanel.VirtualizationMode="Recycling"
                   VirtualizingPanel.ScrollUnit="Pixel"
+                  TextSearch.TextPath="Name"
                   ScrollViewer.CanContentScroll="True"
                   GridViewColumnHeader.Click="ListViewHeaderClick">
             <ListView.Resources>
