@@ -75,7 +75,8 @@ namespace ProcessViewer.Interop
         Unknown = 0, // Unknown
         Host = 0x0001, //Interacts with the host and not a WOW64 guest
         I386 = 0x014c,// Intel 386
-        R3000 = 0x0162,//MIPS little-endian, 0x160 big-endian
+        R3000_BigEndian = 0x1600,// MIPS big-endian
+        R3000 = 0x0162,//MIPS little-endian
         R4000 = 0x0166,//MIPS little-endian
         R10000 = 0x0168,//MIPS little-endian
         WCEMIPSV2 = 0x0169,//MIPS little-endian WCE v2
@@ -116,9 +117,10 @@ namespace ProcessViewer.Interop
                 case ImageFileMachine.Unknown: return " Unknown";
                 case ImageFileMachine.Host: return "Interacts with the host and not a WOW64 guest";
                 case ImageFileMachine.I386: return "Intel 386";
-                case ImageFileMachine.R3000: return "MIPS little-endian, 0x160 big-endian";
-                case ImageFileMachine.R4000: return "MIPS little-endian";
-                case ImageFileMachine.R10000: return "MIPS little-endian";
+                case ImageFileMachine.R3000_BigEndian: return "MIPS R3000 big-endian";
+                case ImageFileMachine.R3000: return "MIPS R3000 little-endian";
+                case ImageFileMachine.R4000: return "MIPS R4000 little-endian";
+                case ImageFileMachine.R10000: return "MIPS R10000 little-endian";
                 case ImageFileMachine.WCEMIPSV2: return "MIPS little-endian WCE v2";
                 case ImageFileMachine.ALPHA: return "Alpha_AXP";
                 case ImageFileMachine.SH3: return "SH3 little-endian";
