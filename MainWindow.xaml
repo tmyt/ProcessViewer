@@ -65,6 +65,7 @@
                     <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
                     <GridViewColumn Header="MachineType" DisplayMemberBinding="{Binding MachineType}"/>
                     <GridViewColumn Header="IsWow64" DisplayMemberBinding="{Binding IsWow64}"/>
+                    <GridViewColumn Header="Path" DisplayMemberBinding="{Binding ImagePath}"/>
                 </GridView>
             </ListView.View>
         </ListView>

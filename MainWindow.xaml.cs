@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.ComponentModel;
+using System.Text;
 
 namespace ProcessViewer
 {
@@ -21,13 +22,14 @@ namespace ProcessViewer
             public uint Pid { get; set; }
             public string Name { get; set; }
             public string MachineType { get; set; }
+            public string ImagePath { get; set; }
             public bool IsWow64 { get; set; }
         }
 
         public ObservableCollection<ProcessInfo> Processes { get; }
             = new ObservableCollection<ProcessInfo>();
 
-        private CollectionViewSource _source;
+        private readonly CollectionViewSource _source;
 
         public MainWindow()
         {
@@ -45,12 +47,13 @@ namespace ProcessViewer
             Processes.Clear();
             foreach (var ppe in EnumProcesses())
             {
-                var (isWow64, machine) = QueryMachineType(ppe.th32ProcessID);
+                var (isWow64, machine, imagePath) = QueryProcessInfo(ppe.th32ProcessID);
                 Processes.Add(new ProcessInfo
                 {
                     Pid = ppe.th32ProcessID,
                     Name = Path.GetFileName(ppe.szExeFile),
                     MachineType = machine.Format(),
+                    ImagePath = imagePath,
                     IsWow64 = isWow64,
                 });
             }
@@ -66,10 +69,11 @@ namespace ProcessViewer
             {
                 case nameof(ProcessInfo.Pid):
                 case nameof(ProcessInfo.Name):
+                case nameof(ProcessInfo.ImagePath):
                     _source.SortDescriptions.Clear();
-                    _source.SortDescriptions.Add(new SortDescription()
+                    _source.SortDescriptions.Add(new SortDescription
                     {
-                        PropertyName = path
+                        PropertyName = path,
                     });
                     break;
                 default:
@@ -95,14 +99,16 @@ namespace ProcessViewer
             Kernel32.CloseHandle(snapshot);
         }
 
-        private (bool isWow64, ImageFileMachine machine) QueryMachineType(uint processId)
+        private (bool isWow64, ImageFileMachine machine, string imagePath) QueryProcessInfo(uint processId)
         {
-            using(var process = new Interop.Process((int)processId, ProcessAccessFlags.QueryLimitedInformation))
+            using (var process = Process.Open((int)processId, ProcessAccessFlags.QueryLimitedInformation))
             {
+                var sb = new StringBuilder(260);
+                Psapi.GetModuleFileNameEx(process.Handle, IntPtr.Zero, sb, 260);
                 Kernel32.IsWow64Process2(process.Handle, out var processMachine, out var nativeMachine);
                 // `processMachine` will be IMAGE_FILE_MACHINE_UNKNOWN if the target process is not a WOW64 process
                 var isWow64 = processMachine != ImageFileMachine.Unknown;
-                return (isWow64, isWow64 ? processMachine : nativeMachine);
+                return (isWow64, isWow64 ? processMachine : nativeMachine, sb.ToString());
             }
         }
     }

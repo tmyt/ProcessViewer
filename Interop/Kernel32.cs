@@ -2,6 +2,7 @@
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Text;
 
 namespace ProcessViewer.Interop
 {
@@ -22,6 +23,11 @@ namespace ProcessViewer.Interop
         public static extern bool IsWow64Process2(IntPtr hProcess, out ImageFileMachine pProcessMachine, out ImageFileMachine pNativeMachine);
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenProcess(ProcessAccessFlags processAccess, bool bInheritHandle, int processId);
+    }
+    static class Psapi
+    {
+        [DllImport("psapi.dll", CharSet = CharSet.Unicode)]
+        public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, StringBuilder lpImageFileName, uint nSize);
     }
 
     [Flags]
